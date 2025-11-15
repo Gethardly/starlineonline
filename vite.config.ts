@@ -19,4 +19,13 @@ export default defineConfig({
   css: {
     postcss: './postcss.config.js',
   },
+/*  server: {
+    proxy: {
+      '/api': {
+        target: 'https://nominatim.openstreetmap.org/',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    }
+  },*/
 })

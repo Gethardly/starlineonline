@@ -22,6 +22,7 @@ export const NewPositionForm: FC<Props> = () => {
         handleSubmit,
         setSelectValue,
         setInputValue,
+        posInfo
     } = useNewPositionForm();
 
     return (
@@ -66,7 +67,7 @@ export const NewPositionForm: FC<Props> = () => {
                     <div className="flex flex-col gap-1">
                         <Label>Координаты</Label>
                         <p className="text-sm text-muted-foreground">
-                            {selectedDevicePos.x}, {selectedDevicePos.y}
+                            {selectedDevicePos.x}, {selectedDevicePos.y} г.{posInfo}
                         </p>
                     </div>
 

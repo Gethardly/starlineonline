@@ -1,4 +1,5 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
+import axios from "axios";
 
 interface Device {
     alias: string;
@@ -124,6 +125,7 @@ export const useNewPositionForm = () => {
     const [selectValue, setSelectValue] = useState<string>("0");
     const [inputValue, setInputValue] = useState<string>("");
     const [loading, setLoading] = useState(false);
+    const [posInfo, setPosInfo] = useState("");
 
     const handleSubmit = (e?: React.FormEvent) => {
         e?.preventDefault();
@@ -132,6 +134,17 @@ export const useNewPositionForm = () => {
     }
 
     const selectedDevicePos = devices[parseInt(selectValue)].pos;
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const response = await axios.get(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${selectedDevicePos.x}&longitude=${selectedDevicePos.y}&localityLanguage=ru`);
+                setPosInfo(response.data?.city);
+            } catch (e) {
+                console.error(e);
+            }
+        })();
+    }, [selectedDevicePos.x, selectedDevicePos.y]);
 
     return {
         selectValue,
@@ -142,5 +155,6 @@ export const useNewPositionForm = () => {
         handleSubmit,
         setSelectValue,
         setInputValue,
+        posInfo,
     }
 }
