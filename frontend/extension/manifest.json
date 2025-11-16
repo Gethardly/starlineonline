@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "Starline Side Panel (dev)",
+  "version": "1.0",
+  "description": "Вставляет боковую панель на starline-online.ru",
+  "permissions": [
+    "scripting",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://starline-online.ru/*",
+    "http://localhost:5173/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://starline-online.ru/*"
+      ],
+      "js": [
+        "content_prod.js"
+      ],
+      "type": "module",
+      "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "index.html",
+        "assets/*",
+        "inject.js"
+      ],
+      "matches": [
+        "https://starline-online.ru/*"
+      ]
+    }
+  ],
+  "action": {
+    "default_popup": "index.html"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' http://localhost:5173; object-src 'self';"
+  }
+}
