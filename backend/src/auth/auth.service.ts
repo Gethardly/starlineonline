@@ -16,7 +16,10 @@ export class AuthService {
     });
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      throw new UnauthorizedException('Неверный email или пароль');
+      throw new UnauthorizedException({
+        message: 'Неверный email или пароль',
+        error: 'InvalidCredentials',
+      });
     }
 
     const payload = { sub: user.id, email: user.email };
