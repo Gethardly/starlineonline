@@ -14,4 +14,20 @@ export class UpdatePositionDto extends PartialType(CreatePositionDto) {
   @IsOptional()
   @IsString()
   name: string;
+
+  @IsOptional()
+  @IsString()
+  address: string;
+
+  @IsOptional()
+  @IsString()
+  contacts: string;
+
+  @IsOptional()
+  @IsString()
+  description: string;
+
+  @IsOptional()
+  @IsString()
+  note: string;
 }

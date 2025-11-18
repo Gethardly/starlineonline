@@ -4,9 +4,10 @@ import { PrismaService } from '../prisma/prisma.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { PositionsModule } from './positions/positions.module';
+import { StarlineModule } from './starline/starline.module';
 
 @Module({
-  imports: [AuthModule, PositionsModule],
+  imports: [AuthModule, PositionsModule, StarlineModule],
   providers: [PrismaService, { provide: APP_GUARD, useClass: JwtAuthGuard }],
 })
 export class AppModule {}

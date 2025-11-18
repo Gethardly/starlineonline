@@ -9,4 +9,16 @@ export class CreatePositionDto {
 
   @IsString()
   name: string;
+
+  @IsString()
+  address: string;
+
+  @IsString()
+  contacts: string;
+
+  @IsString()
+  description: string;
+
+  @IsString()
+  note: string;
 }
