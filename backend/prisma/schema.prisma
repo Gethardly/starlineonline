@@ -20,14 +20,45 @@ model User {
 }
 
 model Position {
-  id          Int      @id @default(autoincrement())
-  x           Float
-  y           Float
-  name        String
-  address     String
-  contacts    String
-  description String
-  note        String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            Int             @id @default(autoincrement())
+  x             Float
+  y             Float
+  name          String
+  address       String
+  contacts      String
+  description   String
+  note          String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  deviceHistory DeviceHistory[]
+}
+
+model Device {
+  id        Int      @id @default(autoincrement())
+  deviceId  Int      @unique
+  imei      String?  @unique
+  alias     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  history DeviceHistory[]
+}
+
+model DeviceHistory {
+  id         Int       @id @default(autoincrement())
+  deviceId   Int
+  positionId Int
+  arrivedAt  DateTime
+  leftAt     DateTime?
+  note       String?
+  createdBy  String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  device   Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  position Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
+
+  @@index([deviceId, arrivedAt])
+  @@index([positionId, arrivedAt])
+  @@index([arrivedAt])
 }
