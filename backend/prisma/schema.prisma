@@ -35,7 +35,7 @@ model Position {
 
 model Device {
   id        Int      @id @default(autoincrement())
-  deviceId  Int      @unique
+  deviceId  String   @unique
   imei      String?  @unique
   alias     String
   createdAt DateTime @default(now())
@@ -46,16 +46,16 @@ model Device {
 
 model DeviceHistory {
   id         Int       @id @default(autoincrement())
-  deviceId   Int
+  deviceId   String
   positionId Int
-  arrivedAt  DateTime
+  arrivedAt  DateTime?
   leftAt     DateTime?
   note       String?
   createdBy  String?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
 
-  device   Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  device   Device   @relation(fields: [deviceId], references: [deviceId], onDelete: Cascade)
   position Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
 
   @@index([deviceId, arrivedAt])

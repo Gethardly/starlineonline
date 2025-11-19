@@ -1,13 +1,24 @@
-import './index.css'
-import {NewPositionForm} from "@/features/devices/NewPositionForm.tsx";
+import {Route, Routes} from "react-router-dom";
+import {Auth} from "@/features/auth/Auth.tsx";
+import {ProtectedRoute} from "@/features/auth/ProtectedRoute.tsx";
+import {useAuth} from "@/features/hooks/useAuth.ts";
+import {Toaster} from "./components/ui/toaster";
+import {TabBar} from "@/common/TabBar.tsx";
 
-function App() {
+export default function App() {
+    const {loading, isAuthenticated} = useAuth();
 
     return (
         <>
-            <NewPositionForm/>
-        </>
-    )
-}
+            <Routes>
+                <Route path="*" element={"Not found"}/>
+                <Route path="/login" element={<Auth/>}/>
 
-export default App
+                <Route element={<ProtectedRoute loading={loading} isAuthenticated={isAuthenticated}/>}>
+                    <Route path="/" element={<TabBar/>}/>
+                </Route>
+            </Routes>
+            <Toaster/>
+        </>
+    );
+}

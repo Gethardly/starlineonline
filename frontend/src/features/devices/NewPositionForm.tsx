@@ -3,81 +3,174 @@ import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from "@/components/ui/select";
-import {useNewPositionForm} from "@/features/hooks/useNewPositionForm.ts";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form";
+import {Textarea} from "@/components/ui/textarea";
+import {useNewPositionForm} from "@/features/hooks/useNewPositionForm";
+import {PhoneInput} from "@/components/PhoneInput.tsx";
 
-interface Props {
-    onSubmit?: (payload: { select: string; input: string }) => void;
-    initialValue?: string;
-    options?: { value: string; label: string }[];
-}
-
-export const NewPositionForm: FC<Props> = () => {
+export const NewPositionForm: FC = () => {
     const {
         loading,
-        inputValue,
-        selectValue,
         devices,
-        selectedDevicePos,
-        handleSubmit,
-        setSelectValue,
-        setInputValue,
-        posInfo
+        posInfo,
+        onSelectChange,
+        selectedDevice,
+        form,
+        onSubmit,
     } = useNewPositionForm();
 
     return (
-        <Card className="w-full h-screen rounded-none">
+        <Card className="w-full rounded-none">
             <CardHeader>
-                <CardTitle>Добавлении новой локации</CardTitle>
+                <CardTitle>Добавление новой локации</CardTitle>
             </CardHeader>
             <CardContent>
-                <form
-                    onSubmit={handleSubmit}
-                    className="flex flex-col gap-3"
-                >
-                    <div className="flex flex-col gap-1">
-                        <Label htmlFor="select">Выберите устройство</Label>
-                        <Select
-                            value={selectValue}
-                            onValueChange={(val) => setSelectValue(val)}
-                        >
-                            <SelectTrigger id="select" className="w-full">
-                                <SelectValue placeholder="Выбрать..."/>
-                            </SelectTrigger>
-                            <SelectContent>
-                                {devices.map((d, i) => (
-                                    <SelectItem key={d.device_id} value={i.toString()}>
-                                        {d.alias} {d.status === 1 ? '(В сети)' : '(Оффлайн)'}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="flex flex-col gap-1">
-                        <Label htmlFor="input">Название места</Label>
-                        <Input
-                            id="input"
-                            value={inputValue}
-                            onChange={(e) => setInputValue(e.target.value)}
-                            placeholder="Введите текст"
+                <Form {...form}>
+                    <form onSubmit={onSubmit} className="flex flex-col gap-3">
+                        <FormField
+                            control={form.control}
+                            name="device_id"
+                            render={({field}) => (
+                                <FormItem>
+                                    <FormLabel>Выберите позицию устройства</FormLabel>
+                                    <Select
+                                        value={field.value.toString()}
+                                        onValueChange={(val) => {
+                                            field.onChange(val.toString());
+                                            onSelectChange(val);
+                                        }}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Выбрать..."/>
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {devices.map((d) => (
+                                                <SelectItem
+                                                    key={d.device_id}
+                                                    value={d.device_id.toString()}
+                                                >
+                                                    {d.alias}{" "}
+                                                    {d.status === 1 ? "(В сети)" : "(Оффлайн)"}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage/>
+                                </FormItem>
+                            )}
                         />
-                    </div>
+                        <FormField
+                            control={form.control}
+                            name="name"
+                            render={({field}) => (
+                                <FormItem>
+                                    <FormLabel>Название места</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Введите название" {...field} />
+                                    </FormControl>
+                                    <FormMessage/>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="address"
+                            render={({field}) => (
+                                <FormItem>
+                                    <FormLabel>Адрес</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="Введите адрес"
+                                            disabled={!!posInfo}
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage/>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="contacts"
+                            render={({field}) => (
+                                <FormItem>
+                                    <FormLabel>Контакты</FormLabel>
+                                    <FormControl>
+                                        <PhoneInput
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            onBlur={field.onBlur}
+                                        />
+                                    </FormControl>
+                                    <FormMessage/>
+                                </FormItem>
+                            )}
+                        />
+                        <div className="flex flex-col gap-1 mb-1">
+                            <Label>Координаты</Label>
+                            <p className="text-sm text-muted-foreground">
+                                {selectedDevice?.pos?.x || 0}, {selectedDevice?.pos?.y || 0}
+                            </p>
+                        </div>
+                        <FormField
+                            control={form.control}
+                            name="description"
+                            render={({field}) => (
+                                <FormItem>
+                                    <FormLabel>Описание</FormLabel>
+                                    <FormControl>
+                                        <Textarea
+                                            placeholder="Введите описание..."
+                                            rows={4}
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage/>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="note"
+                            render={({field}) => (
+                                <FormItem>
+                                    <FormLabel>Примечание</FormLabel>
+                                    <FormControl>
+                                        <Textarea
+                                            placeholder="Введите примечание..."
+                                            rows={4}
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage/>
+                                </FormItem>
+                            )}
+                        />
 
-                    <div className="flex flex-col gap-1">
-                        <Label>Координаты</Label>
-                        <p className="text-sm text-muted-foreground">
-                            {selectedDevicePos.x}, {selectedDevicePos.y} г.{posInfo}
-                        </p>
-                    </div>
-
-                    <div>
-                        <Button type="submit" className="w-full" disabled={loading}>
-                            {loading ? "Отправка..." : "Отправить"}
-                        </Button>
-                    </div>
-                </form>
+                        <div>
+                            <Button type="submit" className="w-full" disabled={loading}>
+                                {loading ? "Отправка..." : "Отправить"}
+                            </Button>
+                        </div>
+                    </form>
+                </Form>
             </CardContent>
         </Card>
     );
-}
+};
