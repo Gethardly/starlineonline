@@ -20,7 +20,7 @@ export class AuthController {
       sameSite: 'lax',
       maxAge: 24 * 60 * 60 * 1000,
     });
-    return user.user;
+    return user;
   }
 
   @Get('me')

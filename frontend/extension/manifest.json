@@ -5,11 +5,15 @@
   "description": "Вставляет боковую панель на starline-online.ru",
   "permissions": [
     "scripting",
-    "activeTab"
+    "activeTab",
+    "cookies",
+    "webRequest"
   ],
   "host_permissions": [
     "https://starline-online.ru/*",
-    "http://localhost:5173/*"
+    "http://localhost:5173/*",
+    "*://*.starline.online/*",
+    "http://localhost:3000/*"
   ],
   "content_scripts": [
     {
@@ -19,7 +23,6 @@
       "js": [
         "content_prod.js"
       ],
-      "type": "module",
       "run_at": "document_end"
     }
   ],
@@ -28,7 +31,9 @@
       "resources": [
         "index.html",
         "assets/*",
-        "inject.js"
+        "inject.js",
+        "build/*",
+        "build/assets"
       ],
       "matches": [
         "https://starline-online.ru/*"

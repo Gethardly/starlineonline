@@ -9,7 +9,13 @@ import { PositionHistoryModule } from './position-history/position-history.modul
 import { DevicesModule } from './devices/devices.module';
 
 @Module({
-  imports: [AuthModule, PositionsModule, StarlineModule, PositionHistoryModule, DevicesModule],
+  imports: [
+    AuthModule,
+    PositionsModule,
+    StarlineModule,
+    PositionHistoryModule,
+    DevicesModule,
+  ],
   providers: [PrismaService, { provide: APP_GUARD, useClass: JwtAuthGuard }],
 })
 export class AppModule {}

@@ -20,7 +20,7 @@ export const useNewPositionForm = () => {
     const form = useForm<PositionFormData>({
         resolver: zodResolver(positionFormSchema),
         defaultValues: {
-            device_id: 0,
+            device_id: "",
             name: "",
             address: "",
             contacts: "",
@@ -40,13 +40,19 @@ export const useNewPositionForm = () => {
                 const {data} = await axiosApi.get("/starline/devices");
                 const fetchedDevices: Device[] = data.data.devices || [];
 
+                const {data: positions} = await axiosApi.get("/positions");
                 setDevices(fetchedDevices);
+
+                window.parent.postMessage({
+                    type: "POSITIONS",
+                    positions,
+                }, "https://starline-online.ru");
 
                 if (fetchedDevices.length > 0) {
                     const firstDevice = fetchedDevices[0];
                     setSelectedDevice(firstDevice);
 
-                    form.setValue("device_id", firstDevice.device_id)
+                    form.setValue("device_id", firstDevice.device_id.toString())
                     form.setValue("x", firstDevice.pos.x);
                     form.setValue("y", firstDevice.pos.y);
                 }
@@ -110,7 +116,7 @@ export const useNewPositionForm = () => {
         const device = devices.find((d) => d.device_id === parseInt(val));
         if (device) {
             setSelectedDevice(device);
-            form.setValue("device_id", parseInt(val));
+            form.setValue("device_id", val);
             form.setValue("x", device.pos.x,);
             form.setValue("y", device.pos.y,);
         }
@@ -120,7 +126,7 @@ export const useNewPositionForm = () => {
         try {
             const {data} = await axiosApi.get("/starline/devices");
             const fetchedDevices: Device[] = data.data.devices || [];
-            const fetchedDevice = fetchedDevices.find((d) => d.device_id === positionFormData.device_id);
+            const fetchedDevice = fetchedDevices.find((d) => d.device_id.toString() === positionFormData.device_id);
 
             const payload = {
                 ...positionFormData,

@@ -10,6 +10,7 @@ const initialState: Me = {
 export const useAuth = () => {
     const [auth, setAuth] = useState<Me | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     useEffect(() => {
         let mounted = true;
@@ -19,6 +20,7 @@ export const useAuth = () => {
                 const {data} = await axiosApi.get<Me>("/auth/me");
                 if (mounted) {
                     setAuth(data.success ? data : initialState);
+                    setIsAuthenticated(data.success === true);
                 }
             } catch (e) {
                 if (mounted) {
@@ -32,16 +34,22 @@ export const useAuth = () => {
             }
         })();
 
+        const handler = () => {
+            setIsAuthenticated(localStorage.getItem("tkn") !== null);
+        };
+
+        window.addEventListener("storage", handler);
+
         return () => {
             mounted = false;
+            window.removeEventListener("storage", handler);
         };
     }, []);
-
-    const isAuthenticated = auth?.success === true;
 
     return {
         isAuthenticated,
         user: auth?.user || null,
         loading,
+        setIsAuthenticated,
     };
 };

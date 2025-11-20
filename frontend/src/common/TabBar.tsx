@@ -1,4 +1,4 @@
-import {TabsContent, TabsList, TabsTrigger} from "@radix-ui/react-tabs";
+import {TabsContent, TabsList} from "@radix-ui/react-tabs";
 import {Tabs} from "@/components/ui/tabs.tsx";
 import {NewPositionForm} from "@/features/devices/NewPositionForm.tsx";
 import {NewDeviceForm} from "@/features/devices/NewDeviceForm.tsx";
@@ -7,7 +7,7 @@ export const TabBar = () => {
     return (
         <Tabs defaultValue="form1">
             <TabsList className="grid w-full grid-cols-3 bg-muted/40 p-1 rounded-xl">
-                <TabsTrigger
+                {/* <TabsTrigger
                     value="form1"
                     className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground
                  rounded-lg transition-all text-sm font-medium"
@@ -29,7 +29,7 @@ export const TabBar = () => {
                  rounded-lg transition-all text-sm font-medium"
                 >
                     Добавление истории
-                </TabsTrigger>
+                </TabsTrigger>*/}
             </TabsList>
 
             <TabsContent value="form1">

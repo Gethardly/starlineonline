@@ -3,7 +3,7 @@
     window.__sidePanelInjected = true;
 
     const iframe = document.createElement("iframe");
-    iframe.src = chrome.runtime.getURL("index.html");
+    iframe.src = chrome.runtime.getURL("build/index.html");
     iframe.style.position = "fixed";
     iframe.style.top = "0";
     iframe.style.right = "0";

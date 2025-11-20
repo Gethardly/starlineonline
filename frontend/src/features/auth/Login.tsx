@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {type FC, useState} from 'react';
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
 import {Input} from '@/components/ui/input';
 import {Button} from '@/components/ui/button';
@@ -17,7 +17,11 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-export const Auth = () => {
+interface Props {
+    onLogin?: () => void;
+}
+
+export const Login: FC<Props> = ({onLogin}) => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -32,15 +36,19 @@ export const Auth = () => {
     const onSubmit = async (data: LoginFormData) => {
         setIsLoading(true);
         try {
-            const {data: me} = await axiosApi.post("/auth/login", {
+            const {data: login} = await axiosApi.post("/auth/login", {
                 email: data.email,
                 password: data.password
             });
 
-            if (me && me.id) {
+            localStorage.setItem("tkn", login["access_token"]);
+
+            onLogin?.();
+            if (login && login.user.id) {
                 navigate("/");
             }
         } catch (e) {
+            console.log(e);
         } finally {
             setIsLoading(false)
         }
@@ -104,9 +112,6 @@ export const Auth = () => {
                                            className="size-4 rounded border-gray-600 text-blue-500 focus:ring-blue-500"/>
                                     <span className="text-gray-400">Запомнить меня</span>
                                 </label>
-                                <a href="#" className="text-blue-400 hover:text-blue-300 transition-colors">
-                                    Забыли пароль?
-                                </a>
                             </div>
 
                             <Button
@@ -123,13 +128,6 @@ export const Auth = () => {
                                     'Войти'
                                 )}
                             </Button>
-
-                            <div className="text-center text-sm text-gray-500">
-                                Нет аккаунта?{' '}
-                                <a href="#" className="text-blue-400 hover:text-blue-300 font-medium">
-                                    Зарегистрироваться
-                                </a>
-                            </div>
                         </form>
                     </CardContent>
                 </Card>

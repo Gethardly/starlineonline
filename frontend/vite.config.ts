@@ -5,6 +5,9 @@ import * as path from "node:path";
 // https://vite.dev/config/
 export default defineConfig({
   base: './',
+  build: {
+    outDir: 'build'
+  },
   plugins: [
     react({
       babel: {

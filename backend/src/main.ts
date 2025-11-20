@@ -9,7 +9,7 @@ async function bootstrap() {
   app.use(cookieParser());
 
   app.enableCors({
-    origin: ['http://localhost:5173', 'https://starline.kg'],
+    origin: ['http://localhost:5173', 'https://starline-online.ru'],
     credentials: true,
   });
 
