@@ -10,9 +10,11 @@ waitForYmaps(() => {
 
     window.ymaps.ready(() => {
         window.addEventListener("message", (event) => {
+            if (!event.origin.startsWith("chrome-extension://") ||
+                !event.origin === "http://localhost:5173" ||
+                !event.origin === "https://starline-online.ru") return;
 
             if (event.data.type === "POSITIONS") {
-                console.log(event.data.positions);
                 event.data.positions.forEach(position => {
                     const yapos = new ymaps.Placemark(
                         [position.x, position.y],
