@@ -1,11 +1,11 @@
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {z} from "zod";
 import axiosApi from "@/axios.ts";
 import {useToast} from "@/hooks/use-toast.ts";
 import {isAxiosError} from "axios";
-import {type Device, positionFormSchema} from "@/features/types";
+import {type Device, type Position, positionFormSchema} from "@/features/types";
 
 type PositionFormData = z.infer<typeof positionFormSchema>;
 
@@ -13,106 +13,125 @@ export const useNewPositionForm = () => {
     const {toast} = useToast();
     const [devices, setDevices] = useState<Device[]>([]);
     const [loadingDevices, setLoadingDevices] = useState(true);
-    const [loadingAddress, setLoadingAddress] = useState(false);
-    const [posInfo, setPosInfo] = useState<string>("");
-    const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
+    const [loadingAddress, setLoadingAddress] = useState(true);
+    const [selectedDevice, setSelectedDevice] = useState<Device | null>(devices[0]);
+    const [editEnabled, setEditEnabled] = useState(false);
+    const [positions, setPositions] = useState<Position[]>([]);
+    const [positionsLoading, setPositionsLoading] = useState(true);
+    const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
+    const textLoading = "Загрузка данных..."
 
     const form = useForm<PositionFormData>({
         resolver: zodResolver(positionFormSchema),
-        defaultValues: {
-            device_id: "",
-            name: "",
-            address: "",
-            contacts: "",
-            description: "",
-            note: "",
-            x: 0,
-            y: 0,
-        },
+        values: {
+            positionId: selectedPosition?.id.toString() ?? "",
+            device_id: selectedDevice?.device_id.toString() ?? "",
+            name: editEnabled ? selectedPosition?.name ?? "" : "",
+            address: selectedPosition?.address ?? textLoading,
+            contacts: editEnabled ? selectedPosition?.contacts ?? "" : "",
+            description: editEnabled ? selectedPosition?.description ?? "" : "",
+            note: editEnabled ? selectedPosition?.note ?? "" : "",
+            x: editEnabled ? selectedPosition?.x ?? 0 : selectedDevice?.pos.x ?? 0,
+            y: editEnabled ? selectedPosition?.y ?? 0 : selectedDevice?.pos.y ?? 0,
+        }
     });
 
-    const loading = loadingDevices || loadingAddress || form.formState.isSubmitting;
+    const loading = loadingDevices || loadingAddress || form.formState.isSubmitting || positionsLoading;
 
-    useEffect(() => {
-        (async () => {
-            setLoadingDevices(true);
-            try {
-                const {data} = await axiosApi.get("/starline/devices");
-                const fetchedDevices: Device[] = data.data.devices || [];
+    const getPositions = async () => {
+        try {
+            setPositionsLoading(true);
+            const {data: positions} = await axiosApi.get<Position[]>("/positions");
 
-                const {data: positions} = await axiosApi.get("/positions");
-                setDevices(fetchedDevices);
+            setPositions(positions);
+            setSelectedPosition(positions[0]);
 
-                window.parent.postMessage({
-                    type: "POSITIONS",
-                    positions,
-                }, "https://starline-online.ru");
-
-                if (fetchedDevices.length > 0) {
-                    const firstDevice = fetchedDevices[0];
-                    setSelectedDevice(firstDevice);
-
-                    form.setValue("device_id", firstDevice.device_id.toString())
-                    form.setValue("x", firstDevice.pos.x);
-                    form.setValue("y", firstDevice.pos.y);
-                }
-            } catch (e) {
-                console.error("Failed to load devices:", e);
-            } finally {
-                setLoadingDevices(false);
-            }
-        })();
-    }, []);
-
-    useEffect(() => {
-        setPosInfo("");
-        setLoadingAddress(true);
-
-        if (!selectedDevice?.device_id || devices.length === 0) {
-            setLoadingAddress(false);
-            return;
+            window.parent.postMessage({
+                type: "POSITIONS",
+                positions,
+            }, "https://starline-online.ru");
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setPositionsLoading(false);
         }
+    }
 
-        if (!selectedDevice?.pos?.x || !selectedDevice?.pos?.y) {
-            setPosInfo("Координаты недоступны");
-            form.setValue("address", "Координаты недоступны");
-            setLoadingAddress(false);
-            return;
-        }
-
-        const lat = selectedDevice.pos.x;
-        const lon = selectedDevice.pos.y;
-
-        (async () => {
-            try {
-                const response = await fetch(
-                    `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=18&addressdetails=1&accept-language=ru`,
-                    {
-                        headers: {
-                            "User-Agent": "MyFleetApp/1.0 (+your@email.com)",
-                        },
-                    }
-                );
-
-                if (!response.ok) throw new Error("Nominatim error");
-
-                const data = await response.json();
-                const address = `${data.display_name} ${data?.address?.house_number || ""}`;
-
-                setPosInfo(address || "Неизвестно");
-                form.setValue("address", address);
-            } catch (e) {
-                console.error("Reverse geocoding failed:", e);
-                const errorMsg = "Адрес не найден";
-                setPosInfo(errorMsg);
-                form.setValue("address", errorMsg);
-            } finally {
+    const getAddress = useCallback(async () => {
+        try {
+            if (!selectedDevice?.device_id || devices.length === 0) {
                 setLoadingAddress(false);
+                return;
             }
-        })();
-    }, [selectedDevice, devices, form]);
 
-    const onSelectChange = (val: string) => {
+            if (!selectedDevice?.pos?.x || !selectedDevice?.pos?.y) {
+                form.setValue("address", "Координаты недоступны");
+                setLoadingAddress(false);
+                return;
+            }
+
+            const lat = selectedDevice.pos.x;
+            const lon = selectedDevice.pos.y;
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=18&addressdetails=1&accept-language=ru`,
+                {
+                    headers: {
+                        "User-Agent": "MyFleetApp/1.0 (+your@email.com)",
+                    },
+                }
+            );
+
+            if (!response.ok) throw new Error("Nominatim error");
+
+            const data = await response.json();
+            const address = `${data.display_name} ${data?.address?.house_number || ""}`;
+
+            form.setValue("address", address);
+        } catch (e) {
+            console.error("Reverse geocoding failed:", e);
+            const errorMsg = "Адрес не найден";
+            form.setValue("address", errorMsg);
+        } finally {
+            setLoadingAddress(false);
+        }
+    }, [devices.length, form, selectedDevice?.device_id, selectedDevice?.pos.x, selectedDevice?.pos.y]);
+
+    useEffect(() => {
+        if (!editEnabled) {
+            (async () => {
+                setLoadingDevices(true);
+                try {
+                    const {data} = await axiosApi.get("/starline/devices");
+                    const fetchedDevices: Device[] = data.data.devices || [];
+
+                    await getPositions();
+                    setDevices(fetchedDevices);
+
+                    if (fetchedDevices.length > 0) {
+                        const firstDevice = fetchedDevices[0];
+                        setSelectedDevice(firstDevice);
+
+                        form.setValue("device_id", firstDevice.device_id.toString())
+                        form.setValue("x", firstDevice.pos.x);
+                        form.setValue("y", firstDevice.pos.y);
+                    }
+                } catch (e) {
+                    console.error("Failed to load devices:", e);
+                } finally {
+                    setLoadingDevices(false);
+                }
+            })();
+        }
+    }, [editEnabled]);
+
+    useEffect(() => {
+        (async () => {
+            await getAddress()
+        })();
+
+    }, [selectedDevice, devices, form, getAddress]);
+
+    const onSelectedDeviceChange = (val: string) => {
         const device = devices.find((d) => d.device_id === parseInt(val));
         if (device) {
             setSelectedDevice(device);
@@ -122,7 +141,34 @@ export const useNewPositionForm = () => {
         }
     };
 
-    const onSubmit = async (positionFormData: PositionFormData) => {
+    const onSelectedPositionChange = (val: string) => {
+        const position = positions.find((p) => p.id === parseInt(val));
+        if (position) {
+            setSelectedPosition(position);
+            setSelectedDevice(null);
+            form.setValue("positionId", val)
+        }
+    }
+
+    const onChangeEdit = async (state: boolean) => {
+        if (!state) {
+            setSelectedPosition(null);
+            setEditEnabled(state);
+            form.reset({
+                address: "",
+                contacts: "",
+                description: "",
+                note: "",
+                positionId: "",
+            });
+            await getAddress();
+        } else {
+            setSelectedDevice(null);
+            setEditEnabled(state);
+        }
+    }
+
+    const onPositionCreate = async (positionFormData: PositionFormData) => {
         try {
             const {data} = await axiosApi.get("/starline/devices");
             const fetchedDevices: Device[] = data.data.devices || [];
@@ -142,14 +188,16 @@ export const useNewPositionForm = () => {
                 duration: 5000,
             });
 
+            await getPositions();
+
             form.reset();
             setSelectedDevice(null);
 
-        } catch (error) {
-            if (isAxiosError(error)) {
-                if (error.response?.status === 401) {
+        } catch (e) {
+            if (isAxiosError(e)) {
+                if (e.response?.status === 401) {
                     toast({variant: "destructive", title: "Не авторизован"});
-                } else if (error.response?.status === 422) {
+                } else if (e.response?.status === 422) {
                     toast({variant: "destructive", title: "Ошибка валидации"});
                 } else {
                     toast({variant: "destructive", title: "Ошибка сервера при отправке"});
@@ -158,15 +206,50 @@ export const useNewPositionForm = () => {
         }
     };
 
+    const onPositionEdit = async (positionFormData: PositionFormData) => {
+        try {
+            const payload = {
+                ...positionFormData,
+                x: selectedDevice ? selectedDevice.pos.x : positionFormData.x,
+                y: selectedDevice ? selectedDevice.pos.y : positionFormData.y,
+            }
+            await axiosApi.patch(`/positions/${positionFormData.positionId}`, payload);
+            toast({
+                title: "Позиция отредактирована",
+                description: positionFormData.name,
+                duration: 5000,
+            });
+            await getPositions();
+            form.reset();
+            setSelectedPosition(null);
+        } catch (e) {
+            if (isAxiosError(e)) {
+                if (e.response?.status === 401) {
+                    toast({variant: "destructive", title: "Не авторизован"});
+                } else if (e.response?.status === 422) {
+                    toast({variant: "destructive", title: "Ошибка валидации"});
+                } else {
+                    toast({variant: "destructive", title: "Ошибка сервера при отправке"});
+                }
+            }
+        }
+    }
+
     return {
         loading,
         devices,
-        loadingDevices,
-        loadingAddress,
-        posInfo: loadingAddress ? "Определяем адрес..." : posInfo,
         selectedDevice,
-        onSelectChange,
+        onSelectedDeviceChange,
         form,
-        onSubmit: form.handleSubmit(onSubmit),
+        onPositionCreate: form.handleSubmit(onPositionCreate),
+        onPositionEdit: form.handleSubmit(onPositionEdit),
+        editEnabled,
+        setEditEnabled,
+        positions,
+        selectedPosition,
+        setSelectedPosition,
+        onSelectedPositionChange,
+        onChangeEdit,
+        textLoading
     };
 };

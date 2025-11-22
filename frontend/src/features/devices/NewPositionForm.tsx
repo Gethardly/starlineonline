@@ -21,42 +21,101 @@ import {
 import {Textarea} from "@/components/ui/textarea";
 import {useNewPositionForm} from "@/features/hooks/useNewPositionForm";
 import {PhoneInput} from "@/components/PhoneInput.tsx";
+import {Switch} from "@/components/ui/switch.tsx";
 
 export const NewPositionForm: FC = () => {
     const {
         loading,
         devices,
-        posInfo,
-        onSelectChange,
+        onSelectedDeviceChange,
         selectedDevice,
+        selectedPosition,
         form,
-        onSubmit,
+        onPositionCreate,
+        onPositionEdit,
+        editEnabled,
+        onChangeEdit,
+        positions,
+        onSelectedPositionChange,
+        textLoading,
     } = useNewPositionForm();
 
     return (
         <Card className="w-full rounded-none">
-            <CardHeader>
-                <CardTitle>Добавление новой локации</CardTitle>
+            <CardHeader className="flex flex-row items-center">
+                <CardTitle>
+                    {editEnabled
+                        ? "Редактирование локации"
+                        : "Добавление новой локации"
+                    }
+                </CardTitle>
+                <div className="flex items-center space-x-2 ml-10">
+                    <Switch
+                        checked={editEnabled}
+                        onCheckedChange={onChangeEdit}
+                        id="airplane-mode"
+                    />
+                    <Label htmlFor="airplane-mode">
+                        {editEnabled ? "Редактирование" : "Создание"}
+                    </Label>
+                </div>
             </CardHeader>
             <CardContent>
                 <Form {...form}>
-                    <form onSubmit={onSubmit} className="flex flex-col gap-3">
+                    <form onSubmit={editEnabled ? onPositionEdit : onPositionCreate} className="flex flex-col gap-3">
+                        {editEnabled && <FormField
+                            control={form.control}
+                            name="positionId"
+                            render={({field}) => (
+                                <FormItem>
+                                    <FormLabel>
+                                        Выберите локацию
+                                    </FormLabel>
+                                    <Select
+                                        value={field.value?.toString()}
+                                        onValueChange={(val) => {
+                                            field.onChange(val.toString())
+                                            onSelectedPositionChange(val)
+                                        }}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder={textLoading}/>
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {positions.map((p) => (
+                                                <SelectItem
+                                                    key={p.id}
+                                                    value={p.id.toString()}
+                                                >
+                                                    {p.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </FormItem>
+                            )}
+                        />
+                        }
                         <FormField
                             control={form.control}
                             name="device_id"
                             render={({field}) => (
                                 <FormItem>
-                                    <FormLabel>Выберите позицию устройства</FormLabel>
+                                    <FormLabel>
+                                        Выберите позицию устройства
+                                    </FormLabel>
                                     <Select
                                         value={field.value.toString()}
                                         onValueChange={(val) => {
                                             field.onChange(val.toString());
-                                            onSelectChange(val);
+                                            onSelectedDeviceChange(val);
                                         }}
                                     >
                                         <FormControl>
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Выбрать..."/>
+                                                <SelectValue placeholder={editEnabled ? "Выберите устройство для установки новой позиции" : textLoading}/>
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
@@ -96,8 +155,8 @@ export const NewPositionForm: FC = () => {
                                     <FormLabel>Адрес</FormLabel>
                                     <FormControl>
                                         <Input
-                                            placeholder="Введите адрес"
-                                            disabled={!!posInfo}
+                                            placeholder={textLoading}
+                                            disabled={!editEnabled}
                                             {...field}
                                         />
                                     </FormControl>
@@ -125,7 +184,8 @@ export const NewPositionForm: FC = () => {
                         <div className="flex flex-col gap-1 mb-1">
                             <Label>Координаты</Label>
                             <p className="text-sm text-muted-foreground">
-                                {selectedDevice?.pos?.x || 0}, {selectedDevice?.pos?.y || 0}
+                                {selectedDevice ? selectedDevice.pos.x : selectedPosition?.x || 0}, {" "}
+                                {selectedDevice ? selectedDevice?.pos?.y : selectedPosition?.y || 0}
                             </p>
                         </div>
                         <FormField
