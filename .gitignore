@@ -6,10 +6,9 @@ yarn-debug.log*
 pnpm-debug.log*
 
 # Node modules
-frontend/node_modules/
-backend/node_modules/
-backend/prisma/dev.db
-node_modules/
+./backend/prisma/dev.db
+/frontend/node_modules
+/backend/node_modules
 
 
 # Build output
