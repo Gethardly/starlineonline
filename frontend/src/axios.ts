@@ -1,7 +1,11 @@
 import axios, {type InternalAxiosRequestConfig} from "axios";
 
+const baseURL = import.meta.env.MODE === 'production'
+    ? "https://starlineextenstion-nestjsbackend-sdkwyu-50f64a-95-111-243-134.traefik.me/"
+    : "http://localhost:3000";
+
 const axiosApi = axios.create({
-    baseURL: "http://localhost:3000",
+    baseURL: baseURL,
     withCredentials: true,
 });
 
@@ -10,6 +14,8 @@ axiosApi.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     if (token) {
         config.headers['Authorization'] = `Bearer ${token.replace(/^"+|"+$/g, '')}`;
     }
+    config.headers['Origin'] = 'https://starline-online.ru';
+
     return config;
 });
 
