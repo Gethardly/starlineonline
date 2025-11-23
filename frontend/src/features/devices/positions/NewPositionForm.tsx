@@ -1,15 +1,15 @@
 import {type FC} from "react";
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {Label} from "@/components/ui/label";
-import {Input} from "@/components/ui/input";
-import {Button} from "@/components/ui/button";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card.tsx";
+import {Label} from "@/components/ui/label.tsx";
+import {Input} from "@/components/ui/input.tsx";
+import {Button} from "@/components/ui/button.tsx";
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/select.tsx";
 import {
     Form,
     FormControl,
@@ -17,9 +17,9 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from "@/components/ui/form";
-import {Textarea} from "@/components/ui/textarea";
-import {useNewPositionForm} from "@/features/hooks/useNewPositionForm";
+} from "@/components/ui/form.tsx";
+import {Textarea} from "@/components/ui/textarea.tsx";
+import {useNewPositionForm} from "@/features/hooks/useNewPositionForm.ts";
 import {PhoneInput} from "@/components/PhoneInput.tsx";
 import {Switch} from "@/components/ui/switch.tsx";
 
@@ -38,7 +38,7 @@ export const NewPositionForm: FC = () => {
         positions,
         onSelectedPositionChange,
         textLoading,
-    } = useNewPositionForm();
+    } = useNewPositionForm(true);
 
     return (
         <Card className="w-full rounded-none">
@@ -142,6 +142,19 @@ export const NewPositionForm: FC = () => {
                                     <FormLabel>Название места</FormLabel>
                                     <FormControl>
                                         <Input placeholder="Введите название" {...field} />
+                                    </FormControl>
+                                    <FormMessage/>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="positionId"
+                            render={({field}) => (
+                                <FormItem>
+                                    <FormLabel>Номер позиции</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Введите номер позиции" {...field} />
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>

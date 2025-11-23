@@ -34,6 +34,7 @@ export interface Position {
     description: string,
     note: string,
     positionId: number,
+    positionNumber: number,
     createdAt: string,
     updatedAt: string
 }

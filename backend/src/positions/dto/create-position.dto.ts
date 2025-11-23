@@ -23,5 +23,5 @@ export class CreatePositionDto {
   note: string;
 
   @IsNumber()
-  positionId: number;
+  positionNumber: number;
 }

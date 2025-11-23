@@ -9,7 +9,7 @@ import {type Device, type Position, positionFormSchema} from "@/features/types";
 
 type PositionFormData = z.infer<typeof positionFormSchema>;
 
-export const useNewPositionForm = () => {
+export const useNewPositionForm = (isForm: boolean) => {
     const {toast} = useToast();
     const [devices, setDevices] = useState<Device[]>([]);
     const [loadingDevices, setLoadingDevices] = useState(true);
@@ -33,6 +33,7 @@ export const useNewPositionForm = () => {
             note: editEnabled ? selectedPosition?.note ?? "" : "",
             x: editEnabled ? selectedPosition?.x ?? 0 : selectedDevice?.pos.x ?? 0,
             y: editEnabled ? selectedPosition?.y ?? 0 : selectedDevice?.pos.y ?? 0,
+            positionNumber: selectedPosition?.positionNumber ?? 0
         }
     });
 
@@ -101,20 +102,25 @@ export const useNewPositionForm = () => {
             (async () => {
                 setLoadingDevices(true);
                 try {
-                    const {data} = await axiosApi.get("/starline/devices");
-                    const fetchedDevices: Device[] = data.data.devices || [];
+                    if (isForm) {
+                        const {data} = await axiosApi.get("/starline/devices");
+                        const fetchedDevices: Device[] = data.data.devices || [];
 
-                    await getPositions();
-                    setDevices(fetchedDevices);
+                        await getPositions();
+                        setDevices(fetchedDevices);
 
-                    if (fetchedDevices.length > 0) {
-                        const firstDevice = fetchedDevices[0];
-                        setSelectedDevice(firstDevice);
+                        if (fetchedDevices.length > 0) {
+                            const firstDevice = fetchedDevices[0];
+                            setSelectedDevice(firstDevice);
 
-                        form.setValue("device_id", firstDevice.device_id.toString())
-                        form.setValue("x", firstDevice.pos.x);
-                        form.setValue("y", firstDevice.pos.y);
+                            form.setValue("device_id", firstDevice.device_id.toString())
+                            form.setValue("x", firstDevice.pos.x);
+                            form.setValue("y", firstDevice.pos.y);
+                        }
+                    } else {
+                        await getPositions();
                     }
+
                 } catch (e) {
                     console.error("Failed to load devices:", e);
                 } finally {
@@ -125,10 +131,11 @@ export const useNewPositionForm = () => {
     }, [editEnabled]);
 
     useEffect(() => {
-        (async () => {
-            await getAddress()
-        })();
-
+        if (isForm) {
+            (async () => {
+                await getAddress()
+            })();
+        }
     }, [selectedDevice, devices, form, getAddress]);
 
     const onSelectedDeviceChange = (val: string) => {
@@ -192,7 +199,7 @@ export const useNewPositionForm = () => {
 
             form.reset();
             setSelectedDevice(null);
-
+            setEditEnabled(false);
         } catch (e) {
             if (isAxiosError(e)) {
                 if (e.response?.status === 401) {

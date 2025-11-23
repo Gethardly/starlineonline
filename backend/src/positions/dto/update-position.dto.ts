@@ -33,5 +33,5 @@ export class UpdatePositionDto extends PartialType(CreatePositionDto) {
 
   @IsOptional()
   @IsNumber()
-  positionId: number;
+  positionNumber: number;
 }
