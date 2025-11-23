@@ -15,7 +15,7 @@
     "http://localhost:5173/*",
     "*://*.starline.online/*",
     "http://localhost:3000/*",
-    "https://vosst.qit.kg/"
+    "https://vosst.qit.kg/*"
   ],
   "content_scripts": [
     {

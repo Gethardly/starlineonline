@@ -48,7 +48,7 @@ export const useNewPositionForm = (isForm: boolean) => {
             setSelectedPosition(positions[0]);
 
             window.parent.postMessage({
-                type: "POSITIONS",
+                action: "SET_POINTS",
                 positions,
             }, "https://starline-online.ru");
         } catch (e) {
@@ -229,6 +229,7 @@ export const useNewPositionForm = (isForm: boolean) => {
             await getPositions();
             form.reset();
             setSelectedPosition(null);
+            setEditEnabled(false);
         } catch (e) {
             if (isAxiosError(e)) {
                 if (e.response?.status === 401) {

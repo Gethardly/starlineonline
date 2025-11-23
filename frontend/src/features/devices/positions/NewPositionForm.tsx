@@ -115,7 +115,8 @@ export const NewPositionForm: FC = () => {
                                     >
                                         <FormControl>
                                             <SelectTrigger>
-                                                <SelectValue placeholder={editEnabled ? "Выберите устройство для установки новой позиции" : textLoading}/>
+                                                <SelectValue
+                                                    placeholder={editEnabled ? "Выберите устройство для установки новой позиции" : textLoading}/>
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
@@ -149,12 +150,18 @@ export const NewPositionForm: FC = () => {
                         />
                         <FormField
                             control={form.control}
-                            name="positionId"
+                            name="positionNumber"
                             render={({field}) => (
                                 <FormItem>
                                     <FormLabel>Номер позиции</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Введите номер позиции" {...field} />
+                                        <Input placeholder="Введите номер позиции"
+                                               type="number"
+                                               {...field}
+                                               onChange={(e) => {
+                                                   field.onChange(parseInt(e.target.value));
+                                               }}
+                                        />
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>

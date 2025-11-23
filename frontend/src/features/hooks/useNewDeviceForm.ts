@@ -12,7 +12,7 @@ type DeviceFormData = z.infer<typeof deviceFormSchema>;
 
 export const useNewDeviceForm = () => {
     const {toast} = useToast();
-    const {devices} = useNewPositionForm()
+    const {devices} = useNewPositionForm(true);
     const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
     const [loading, setLoading] = useState(false);
 

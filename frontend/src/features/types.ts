@@ -56,7 +56,8 @@ export const positionFormSchema = z.object({
     note: z.string().optional(),
     x: z.number(),
     y: z.number(),
-    positionNumber: z.number().min(1, "Введите номер позиции")
+    positionNumber: z.number({error: "Введите номер позиции"})
+        .min(1, {message: "Минимальное значение — 1"}),
 });
 
 export const deviceFormSchema = z.object({
