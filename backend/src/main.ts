@@ -5,11 +5,38 @@ import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'https://starline-online.ru',
+  ];
 
   app.use(cookieParser());
 
   app.enableCors({
-    origin: ['http://localhost:5173', 'https://starline-online.ru'],
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ): void => {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      if (
+        origin.startsWith('chrome-extension://') ||
+        origin.startsWith('moz-extension://')
+      ) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   });
 

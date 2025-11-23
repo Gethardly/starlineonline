@@ -7,9 +7,14 @@ import { PositionsModule } from './positions/positions.module';
 import { StarlineModule } from './starline/starline.module';
 import { PositionHistoryModule } from './position-history/position-history.module';
 import { DevicesModule } from './devices/devices.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
     AuthModule,
     PositionsModule,
     StarlineModule,
