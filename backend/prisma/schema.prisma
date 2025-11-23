@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -20,17 +20,18 @@ model User {
 }
 
 model Position {
-  id            Int             @id @default(autoincrement())
-  x             Float
-  y             Float
-  name          String
-  address       String
-  contacts      String
-  description   String
-  note          String?
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  deviceHistory DeviceHistory[]
+  id             Int             @id @default(autoincrement())
+  x              Float
+  y              Float
+  name           String
+  address        String
+  contacts       String
+  description    String
+  note           String?
+  positionNumber Int
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  deviceHistory  DeviceHistory[]
 }
 
 model Device {
