@@ -25,16 +25,17 @@ export interface Device {
 }
 
 export interface Position {
-    "id": number,
-    "x": number,
-    "y": number,
-    "name": string,
-    "address": string,
-    "contacts": string,
-    "description": string,
-    "note": string,
-    "createdAt": string,
-    "updatedAt": string
+    id: number,
+    x: number,
+    y: number,
+    name: string,
+    address: string,
+    contacts: string,
+    description: string,
+    note: string,
+    positionId: number,
+    createdAt: string,
+    updatedAt: string
 }
 
 export const positionFormSchema = z.object({
@@ -53,7 +54,8 @@ export const positionFormSchema = z.object({
     description: z.string().min(5, "Введите описание"),
     note: z.string().optional(),
     x: z.number(),
-    y: z.number()
+    y: z.number(),
+    positionNumber: z.number().min(1, "Введите номер позиции")
 });
 
 export const deviceFormSchema = z.object({

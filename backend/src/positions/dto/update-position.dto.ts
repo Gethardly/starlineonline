@@ -30,4 +30,8 @@ export class UpdatePositionDto extends PartialType(CreatePositionDto) {
   @IsOptional()
   @IsString()
   note: string;
+
+  @IsOptional()
+  @IsNumber()
+  positionId: number;
 }
