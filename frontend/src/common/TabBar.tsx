@@ -12,7 +12,7 @@ export const TabBar = () => {
                     className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground
                  transition-all text-sm font-medium"
                 >
-                    Добавление позиции
+                    Добавление локации
                 </TabsTrigger>
                 <TabsTrigger
                     value="locations-list"
