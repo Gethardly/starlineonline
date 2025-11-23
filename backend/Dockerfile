@@ -27,5 +27,4 @@ EXPOSE 3000
 
 CMD npx prisma generate && \
     npx prisma migrate deploy && \
-    node dist/prisma/prisma.seed.js && \
     node dist/src/main.js
