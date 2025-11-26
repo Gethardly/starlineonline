@@ -8,6 +8,8 @@ import { StarlineModule } from './starline/starline.module';
 import { PositionHistoryModule } from './position-history/position-history.module';
 import { DevicesModule } from './devices/devices.module';
 import { ConfigModule } from '@nestjs/config';
+import { RolesGuard } from './auth/roles.guard';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -20,7 +22,12 @@ import { ConfigModule } from '@nestjs/config';
     StarlineModule,
     PositionHistoryModule,
     DevicesModule,
+    UsersModule,
   ],
-  providers: [PrismaService, { provide: APP_GUARD, useClass: JwtAuthGuard }],
+  providers: [
+    PrismaService,
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
+  ],
 })
 export class AppModule {}

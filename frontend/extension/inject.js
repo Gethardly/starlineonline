@@ -8,6 +8,63 @@ function waitForYmaps(callback) {
 
 waitForYmaps(() => {
     window.ymaps.ready(() => {
+        console.log('Модуль скрытия изображений запущен');
+
+        const style = document.createElement('style');
+        style.id = 'hide-ymaps-images-style';
+        style.textContent = `
+            .ymaps-image-with-content[style*="/dist/images/"],
+            .ymaps-default-cluster[style*="/dist/images/"] {
+                display: none !important;
+                opacity: 0 !important;
+                visibility: hidden !important;
+                pointer-events: none !important;
+            }
+        `;
+
+        if (document.head) {
+            document.head.appendChild(style);
+        }
+
+        function hideYmapsImages() {
+            const elements = [
+                ...document.querySelectorAll('.ymaps-image-with-content'),
+                ...document.querySelectorAll('.ymaps-default-cluster')
+            ];
+
+            elements.forEach(element => {
+                const styleAttr = element.getAttribute('style');
+
+                if (styleAttr && styleAttr.includes('/dist/images/')) {
+                    element.style.setProperty('display', 'none', 'important');
+                    element.style.setProperty('opacity', '0', 'important');
+                    element.style.setProperty('visibility', 'hidden', 'important');
+                }
+            });
+        }
+
+        // Первоначальное скрытие
+        hideYmapsImages();
+
+        if (window.map) {
+            window.map.geoObjects.events.add('add', () => {
+                setTimeout(hideYmapsImages, 50);
+            });
+
+            window.map.events.add('boundschange', () => {
+                setTimeout(hideYmapsImages, 50);
+            });
+
+            // Событие окончания действия (actionend)
+            window.map.events.add('actionend', () => {
+                setTimeout(hideYmapsImages, 50);
+            });
+
+            console.log('✓ Подписка на события карты установлена');
+        }
+
+        console.log('✓ Модуль скрытия изображений инициализирован');
+
         // Храним данные о наших метках
         window.myPlacemarksData = window.myPlacemarksData || [];
         window.myPlacemarkObjects = window.myPlacemarkObjects || [];
@@ -31,7 +88,6 @@ waitForYmaps(() => {
             );
         }
 
-        // Функция восстановления всех меток
         function restoreAllPlacemarks() {
             if (!window.map || window.myPlacemarksData.length === 0) return;
 
@@ -48,7 +104,6 @@ waitForYmaps(() => {
             });
         }
 
-        // Следим за картой
         if (window.map) {
             // Следим за событиями удаления
             window.map.geoObjects.events.add('remove', (e) => {

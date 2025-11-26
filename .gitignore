@@ -6,7 +6,6 @@ yarn-debug.log*
 pnpm-debug.log*
 
 # Node modules
-./backend/prisma/dev.db
 /frontend/node_modules
 /backend/node_modules
 
