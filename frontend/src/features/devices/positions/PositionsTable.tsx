@@ -1,13 +1,17 @@
 import {Button} from "@/components/ui/button";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
-import {useNewPositionForm} from "@/features/hooks/useNewPositionForm.ts";
 import {Trash} from "lucide-react";
 import {Modal} from "@/common/Modal.tsx";
 import {usePositionsTable} from "@/features/hooks/usePositionsTable.ts";
 
 export const PositionsTable = () => {
-    const {positions} = useNewPositionForm(false);
-    const {isPositionDeleteSelected, setIsPositionDeleteSelected, handleDelete} = usePositionsTable();
+    const {
+        positions,
+        isPositionDeleteSelected,
+        setIsPositionDeleteSelected,
+        handleDelete,
+        exportToExcel
+    } = usePositionsTable();
     return (
         <>
             <Table>
@@ -39,6 +43,9 @@ export const PositionsTable = () => {
                     ))}
                 </TableBody>
             </Table>
+            <div className="flex justify-end pr-5 pt-2">
+                <Button onClick={exportToExcel}>Экспорт в эксель</Button>
+            </div>
             <Modal
                 title="Удаление локации"
                 description="Вы точно хотите удалить эту локацию?"
