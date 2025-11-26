@@ -11,13 +11,13 @@ import {
 import { Button } from "@/components/ui/button";
 
 interface ModalProps {
-    trigger?: ReactNode; // Кнопка или элемент, который открывает модалку
+    trigger?: ReactNode;
     title?: string;
     description?: string;
-    children: ReactNode; // Содержимое модалки
-    confirmText?: string; // Текст кнопки подтверждения
-    onConfirm?: () => void; // Функция подтверждения
-    cancelText?: string; // Текст кнопки отмены
+    children: ReactNode;
+    confirmText?: string;
+    onConfirm?: () => void;
+    cancelText?: string;
     open?: boolean;
     setOpen?: (value: boolean) => void;
 }

@@ -1,11 +1,16 @@
 import {z} from "zod";
 
+export interface User {
+    userId?: number;
+    id: number;
+    name: string;
+    email: string;
+    role: string;
+}
+
 export interface Me {
     success: boolean,
-    user: null | {
-        userId: number,
-        email: string
-    }
+    user: null | User
 }
 
 export interface Pos {
@@ -38,6 +43,15 @@ export interface Position {
     createdAt: string,
     updatedAt: string
 }
+
+export const userFormSchema = z.object({
+    name: z.string(),
+    email: z.string(),
+    role: z.string(),
+    password: z.string().optional(),
+});
+
+export type UserFormData = z.infer<typeof userFormSchema>;
 
 export const positionFormSchema = z.object({
     positionId: z.string().optional(),

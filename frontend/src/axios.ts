@@ -2,7 +2,7 @@ import axios, {type InternalAxiosRequestConfig} from "axios";
 
 //https://starlineextenstion-nestjsbackend-sdkwyu-50f64a-95-111-243-134.traefik.me/
 
-const baseURL = import.meta.env.MODE === 'production'
+const baseURL = import.meta.env.MODE === 'development'
     ? "https://vosst.qit.kg/"
     : "http://localhost:3000";
 

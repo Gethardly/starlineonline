@@ -4,7 +4,11 @@ import {Trash} from "lucide-react";
 import {Modal} from "@/common/Modal.tsx";
 import {usePositionsTable} from "@/features/hooks/usePositionsTable.ts";
 
-export const PositionsTable = () => {
+interface Props {
+    user: User | null;
+}
+
+export const PositionsTable: FC<Props> = ({user}) => {
     const {
         positions,
         isPositionDeleteSelected,
@@ -34,10 +38,14 @@ export const PositionsTable = () => {
                             <TableCell>{p.address}</TableCell>
                             <TableCell>{p.contacts}</TableCell>
                             <TableCell>
-                                <Button variant="destructive" size="sm"
-                                        onClick={() => setIsPositionDeleteSelected(p.id)}>
-                                    <Trash className="w-2 h-2"/>
-                                </Button>
+                                <div title={user?.role !== 'admin' ? 'Удалять локации может только админ' : ''}>
+                                    <Button variant="destructive" size="sm"
+                                            onClick={() => setIsPositionDeleteSelected(p.id)}
+                                            disabled={user?.role !== 'admin'}
+                                    >
+                                        <Trash className="w-2 h-2"/>
+                                    </Button>
+                                </div>
                             </TableCell>
                         </TableRow>
                     ))}

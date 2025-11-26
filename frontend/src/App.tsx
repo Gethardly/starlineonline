@@ -6,7 +6,7 @@ import {TabBar} from "@/common/TabBar.tsx";
 import {useAuth} from "@/features/hooks/useAuth.ts";
 
 export default function App() {
-    const {loading, isAuthenticated, setIsAuthenticated} = useAuth();
+    const {loading, user, isAuthenticated, setIsAuthenticated, logout} = useAuth();
 
     return (
         <>
@@ -16,7 +16,7 @@ export default function App() {
                        element={<Login onLogin={() => setIsAuthenticated(localStorage.getItem("tkn") !== null)}/>}/>
 
                 <Route element={<ProtectedRoute loading={loading} isAuthenticated={isAuthenticated}/>}>
-                    <Route path="/" element={<TabBar/>}/>
+                    <Route path="/" element={<TabBar user={user} logout={logout}/>}/>
                 </Route>
             </Routes>
             <Toaster/>
