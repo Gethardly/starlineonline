@@ -1,4 +1,4 @@
-import {type FC, useState} from 'react';
+import {type Dispatch, type FC, type SetStateAction, useState} from 'react';
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
 import {Input} from '@/components/ui/input';
 import {Button} from '@/components/ui/button';
@@ -9,6 +9,7 @@ import {zodResolver} from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import axiosApi from "@/axios.ts";
 import {useNavigate} from "react-router-dom";
+import type {Me} from "@/features/types.ts";
 
 const loginSchema = z.object({
     email: z.string().email('Неверный email'),
@@ -19,9 +20,10 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 interface Props {
     onLogin?: () => void;
+    setAuth: Dispatch<SetStateAction<Me | null>>;
 }
 
-export const Login: FC<Props> = ({onLogin}) => {
+export const Login: FC<Props> = ({onLogin, setAuth}) => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -40,6 +42,11 @@ export const Login: FC<Props> = ({onLogin}) => {
                 email: data.email,
                 password: data.password
             });
+
+            setAuth({
+                success: true,
+                user: login.user
+            })
 
             localStorage.setItem("tkn", login["access_token"]);
 

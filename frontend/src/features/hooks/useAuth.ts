@@ -68,6 +68,7 @@ export const useAuth = () => {
         user: auth?.user || null,
         loading,
         setIsAuthenticated,
-        logout
+        logout,
+        setAuth
     };
 };

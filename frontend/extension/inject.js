@@ -13,8 +13,8 @@ waitForYmaps(() => {
         const style = document.createElement('style');
         style.id = 'hide-ymaps-images-style';
         style.textContent = `
-            .ymaps-image-with-content[style*="/dist/images/"],
-            .ymaps-default-cluster[style*="/dist/images/"] {
+            .ymaps-image-with-content[style*="/dist/images/"]:not([style*="width: 16px"]),
+            .ymaps-default-cluster[style*="/dist/images/"]:not([style*="width: 16px"]) {
                 display: none !important;
                 opacity: 0 !important;
                 visibility: hidden !important;
@@ -28,12 +28,14 @@ waitForYmaps(() => {
 
         function hideYmapsImages() {
             const elements = [
-                ...document.querySelectorAll('.ymaps-image-with-content'),
-                ...document.querySelectorAll('.ymaps-default-cluster')
+                ...document.querySelectorAll('.ymaps-image-with-content[style*="/dist/images/"]:not([style*="width: 16px"])'),
+                ...document.querySelectorAll('.ymaps-default-cluster[style*="/dist/images/"]:not([style*="width: 16px"])')
             ];
 
             elements.forEach(element => {
                 const styleAttr = element.getAttribute('style');
+
+               // width element from inline style const iconWidth = parseInt(element.style.cssText.split(';')[3].replace(/\D+/g, ""));
 
                 if (styleAttr && styleAttr.includes('/dist/images/')) {
                     element.style.setProperty('display', 'none', 'important');
@@ -43,7 +45,7 @@ waitForYmaps(() => {
             });
         }
 
-        // Первоначальное скрытие
+        // Первоначальное скрытие пшек
         hideYmapsImages();
 
         if (window.map) {
