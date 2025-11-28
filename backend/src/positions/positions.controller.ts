@@ -1,16 +1,9 @@
-import {
-    Controller,
-    Get,
-    Post,
-    Body,
-    Patch,
-    Param,
-    Delete,
-} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Patch, Post, Req,} from '@nestjs/common';
 import {PositionsService} from './positions.service';
 import {CreatePositionDto} from './dto/create-position.dto';
 import {UpdatePositionDto} from './dto/update-position.dto';
 import {Roles} from "../auth/roles.decorator";
+import { type AuthenticatedRequest, Role} from "../auth/types";
 
 @Controller('positions')
 export class PositionsController {
@@ -18,18 +11,27 @@ export class PositionsController {
     }
 
     @Post()
-    create(@Body() createPositionDto: CreatePositionDto) {
-        return this.positionsService.create(createPositionDto);
+    create(@Body() createPositionDto: CreatePositionDto, @Req() req: AuthenticatedRequest) {
+        const user = req.user;
+        if (user) {
+            return this.positionsService.create(user, createPositionDto);
+        }
     }
 
     @Get()
-    findAll() {
-        return this.positionsService.findAll();
+    findAll(@Req() req: AuthenticatedRequest) {
+        const user = req.user;
+        if (user) {
+            return this.positionsService.findAll(user);
+        }
     }
 
     @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.positionsService.findOne(+id);
+    findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+        const user = req.user;
+        if (user) {
+            return this.positionsService.findOne(+id, user);
+        }
     }
 
     @Patch(':id')
@@ -41,7 +43,7 @@ export class PositionsController {
     }
 
     @Delete(':id')
-    @Roles('admin')
+    @Roles(Role.admin)
     remove(@Param('id') id: string) {
         return this.positionsService.remove(+id);
     }
