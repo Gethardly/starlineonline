@@ -2,7 +2,7 @@ import {Injectable} from '@nestjs/common';
 import {CreatePositionDto} from './dto/create-position.dto';
 import {UpdatePositionDto} from './dto/update-position.dto';
 import {PrismaService} from '../../prisma/prisma.service';
-import {Role, User} from 'src/auth/types';
+import {Role, User} from "../auth/types";
 
 @Injectable()
 export class PositionsService {
