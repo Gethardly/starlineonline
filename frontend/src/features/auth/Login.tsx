@@ -10,6 +10,8 @@ import * as z from 'zod';
 import axiosApi from "@/axios.ts";
 import {useNavigate} from "react-router-dom";
 import type {Me} from "@/features/types.ts";
+import {isAxiosError} from "axios";
+import {useToast} from "@/hooks/use-toast.ts";
 
 const loginSchema = z.object({
     email: z.string().email('Неверный email'),
@@ -24,6 +26,7 @@ interface Props {
 }
 
 export const Login: FC<Props> = ({onLogin, setAuth}) => {
+    const {toast} = useToast();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -55,6 +58,17 @@ export const Login: FC<Props> = ({onLogin, setAuth}) => {
                 navigate("/");
             }
         } catch (e) {
+            if (isAxiosError(e)) {
+                if (e.response?.status === 401) {
+                    toast({variant: "destructive", title: "Неправильный логин или пароль"});
+                } else if (e.response?.status === 409) {
+                    toast({variant: "destructive", title: e.response?.data.message});
+                } else if (e.response?.status === 422) {
+                    toast({variant: "destructive", title: "Ошибка валидации"});
+                } else {
+                    toast({variant: "destructive", title: "Ошибка сервера"});
+                }
+            }
             console.log(e);
         } finally {
             setIsLoading(false)
