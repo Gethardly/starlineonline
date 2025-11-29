@@ -71,20 +71,37 @@ export const useNewPositionForm = (isForm: boolean) => {
                 return;
             }
 
+            const locationiq_api_key = "pk.1e107374b751a1efeeb010dad2253d40";
             const lat = selectedDevice.pos.x;
             const lon = selectedDevice.pos.y;
-            const response = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=18&addressdetails=1&accept-language=ru`,
-                {
-                    headers: {
-                        "User-Agent": "MyFleetApp/1.0 (+your@email.com)",
-                    },
-                }
-            );
 
-            if (!response.ok) throw new Error("Nominatim error");
+            let data;
 
-            const data = await response.json();
+            try {
+                const nominatimRes = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=18&addressdetails=1&accept-language=ru`,
+                    {
+                        headers: {
+                            "User-Agent": "MyFleetApp/1.0 (+your@email.com)",
+                        },
+                    }
+                );
+
+                if (!nominatimRes.ok) throw new Error("Nominatim failed");
+
+                data = await nominatimRes.json();
+            } catch (err) {
+                console.warn("⚠ Nominatim failed, switching to LocationIQ");
+
+                const locRes = await fetch(
+                    `https://us1.locationiq.com/v1/reverse?key=${locationiq_api_key}&lat=${lat}&lon=${lon}&format=json&accept-language=ru`
+                );
+
+                if (!locRes.ok) throw new Error("LocationIQ error");
+
+                data = await locRes.json();
+            }
+
             const address = `${data.display_name} ${data?.address?.house_number || ""}`;
 
             form.setValue("address", address);
@@ -258,6 +275,7 @@ export const useNewPositionForm = (isForm: boolean) => {
         setSelectedPosition,
         onSelectedPositionChange,
         onChangeEdit,
-        textLoading
+        textLoading,
+        getPositions
     };
 };

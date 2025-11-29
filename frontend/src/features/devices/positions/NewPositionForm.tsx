@@ -22,6 +22,7 @@ import {Textarea} from "@/components/ui/textarea.tsx";
 import {useNewPositionForm} from "@/features/hooks/useNewPositionForm.ts";
 import {PhoneInput} from "@/components/PhoneInput.tsx";
 import {Switch} from "@/components/ui/switch.tsx";
+import { PositionAutocomplete } from "./components/PositionAutocomplete";
 
 export const NewPositionForm: FC = () => {
     const {
@@ -71,29 +72,15 @@ export const NewPositionForm: FC = () => {
                                     <FormLabel>
                                         Выберите локацию
                                     </FormLabel>
-                                    <Select
+
+                                    <PositionAutocomplete
+                                        positions={positions}
                                         value={field.value?.toString()}
-                                        onValueChange={(val) => {
+                                        onChange={(val) => {
                                             field.onChange(val.toString())
                                             onSelectedPositionChange(val)
                                         }}
-                                    >
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder={textLoading}/>
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {positions.map((p) => (
-                                                <SelectItem
-                                                    key={p.id}
-                                                    value={p.id.toString()}
-                                                >
-                                                    {p.name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                    />
                                 </FormItem>
                             )}
                         />

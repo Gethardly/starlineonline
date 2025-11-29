@@ -24,7 +24,7 @@ const excelHeadersMap: Record<keyof Position, string> = {
 
 export const usePositionsTable = () => {
     const {toast} = useToast();
-    const {positions} = useNewPositionForm(false);
+    const {positions, getPositions} = useNewPositionForm(false);
     const [isPositionDeleteSelected, setIsPositionDeleteSelected] = useState<number | boolean>(false);
 
     const handleDelete = async () => {
@@ -35,6 +35,7 @@ export const usePositionsTable = () => {
                 description: isPositionDeleteSelected,
                 duration: 5000,
             });
+            await getPositions();
             setIsPositionDeleteSelected(false);
         } catch (e) {
             if (isAxiosError(e)) {
