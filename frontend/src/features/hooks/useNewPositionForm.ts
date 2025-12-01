@@ -17,9 +17,23 @@ export const useNewPositionForm = (isForm: boolean) => {
     const [selectedDevice, setSelectedDevice] = useState<Device | null>(devices[0]);
     const [editEnabled, setEditEnabled] = useState(false);
     const [positions, setPositions] = useState<Position[]>([]);
+    const [filteredPositions, setFilteredPositions] = useState<Position[]>([]);
     const [positionsLoading, setPositionsLoading] = useState(true);
     const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
     const textLoading = "Загрузка данных..."
+    const [pageSize, setPageSize] = useState(20);
+    const [positionsCount, setPositionsCount] = useState(positions.length);
+    const totalPages = Math.ceil(positionsCount / pageSize);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [search, setSearch] = useState("");
+
+    const handleNext = () => {
+        if (currentPage < totalPages) setCurrentPage((p) => p + 1);
+    }
+
+    const handlePrev = () => {
+        if (currentPage > 1) setCurrentPage((p) => p - 1);
+    }
 
     const form = useForm<PositionFormData>({
         resolver: zodResolver(positionFormSchema),
@@ -39,24 +53,31 @@ export const useNewPositionForm = (isForm: boolean) => {
 
     const loading = loadingDevices || loadingAddress || form.formState.isSubmitting || positionsLoading;
 
-    const getPositions = async () => {
+    const getPositions = useCallback(async () => {
         try {
             setPositionsLoading(true);
-            const {data: positions} = await axiosApi.get<Position[]>("/positions");
+            const {data} = await axiosApi.get('/positions', {
+                params: {
+                    page: pageSize === 0 ? 1 : currentPage,
+                    ...(pageSize !== 0 && {pageSize})
+                }
+            });
 
-            setPositions(positions);
-            setSelectedPosition(positions[0]);
+            setPositionsCount(data.total);
+            setPositions(data.positions);
+            setSelectedPosition(data.positions[0]);
+            setCurrentPage(data.page);
 
             window.parent.postMessage({
                 action: "SET_POINTS",
-                positions,
+                positions: data.positions,
             }, "https://starline-online.ru");
         } catch (e) {
             console.error(e);
         } finally {
             setPositionsLoading(false);
         }
-    }
+    }, [currentPage, pageSize]);
 
     const getAddress = useCallback(async () => {
         try {
@@ -91,7 +112,7 @@ export const useNewPositionForm = (isForm: boolean) => {
 
                 data = await nominatimRes.json();
             } catch (err) {
-                console.warn("⚠ Nominatim failed, switching to LocationIQ");
+                console.warn("⚠ Nominatim failed, switching to LocationIQ", err);
 
                 const locRes = await fetch(
                     `https://us1.locationiq.com/v1/reverse?key=${locationiq_api_key}&lat=${lat}&lon=${lon}&format=json&accept-language=ru`
@@ -113,6 +134,20 @@ export const useNewPositionForm = (isForm: boolean) => {
             setLoadingAddress(false);
         }
     }, [devices.length, form, selectedDevice?.device_id, selectedDevice?.pos.x, selectedDevice?.pos.y]);
+
+    useEffect(() => {
+        if (!search.trim()) {
+            setFilteredPositions(positions);
+            return;
+        }
+        const s = search.toLowerCase();
+
+        const result = positions.filter(pos =>
+            pos.name.toLowerCase().includes(s)
+        );
+
+        setFilteredPositions(result);
+    }, [search, positions])
 
     useEffect(() => {
         if (!editEnabled) {
@@ -145,7 +180,7 @@ export const useNewPositionForm = (isForm: boolean) => {
                 }
             })();
         }
-    }, [editEnabled]);
+    }, [editEnabled, getPositions]);
 
     useEffect(() => {
         if (isForm) {
@@ -270,12 +305,20 @@ export const useNewPositionForm = (isForm: boolean) => {
         onPositionEdit: form.handleSubmit(onPositionEdit),
         editEnabled,
         setEditEnabled,
-        positions,
+        positions: filteredPositions,
         selectedPosition,
         setSelectedPosition,
         onSelectedPositionChange,
         onChangeEdit,
         textLoading,
-        getPositions
+        getPositions,
+        setPageSize,
+        handleNext,
+        handlePrev,
+        pageSize,
+        currentPage,
+        totalPages,
+        search,
+        setSearch,
     };
 };

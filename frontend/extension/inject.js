@@ -90,10 +90,19 @@ waitForYmaps(() => {
             );
         }
 
+        let isRestoring = false;
+
         function restoreAllPlacemarks() {
             if (!window.map || window.myPlacemarksData.length === 0) return;
 
             console.log('Восстанавливаем метки:', window.myPlacemarksData.length);
+
+            isRestoring = true;
+
+            // Удаляем старые метки с карты
+            window.myPlacemarkObjects.forEach(placemark => {
+                window.map.geoObjects.remove(placemark);
+            });
 
             // Очищаем старые объекты
             window.myPlacemarkObjects = [];
@@ -104,11 +113,15 @@ waitForYmaps(() => {
                 window.myPlacemarkObjects.push(placemark);
                 window.map.geoObjects.add(placemark);
             });
+
+            isRestoring = false;
         }
 
         if (window.map) {
             // Следим за событиями удаления
             window.map.geoObjects.events.add('remove', (e) => {
+                if (isRestoring) return;
+
                 const removed = e.get('child');
 
                 // Если удалена одна из наших меток - восстанавливаем все

@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Patch, Post, Req,} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query, Req,} from '@nestjs/common';
 import {PositionsService} from './positions.service';
 import {CreatePositionDto} from './dto/create-position.dto';
 import {UpdatePositionDto} from './dto/update-position.dto';
@@ -19,10 +19,12 @@ export class PositionsController {
     }
 
     @Get()
-    findAll(@Req() req: AuthenticatedRequest) {
+    findAll(@Req() req: AuthenticatedRequest, @Query('page') page: string, @Query('pageSize') pageSize: string) {
         const user = req.user;
         if (user) {
-            return this.positionsService.findAll(user);
+            const pageNumber = page ? parseInt(page, 10) : 1;
+            const size = pageSize ? parseInt(pageSize, 10) : undefined;
+            return this.positionsService.findAll(user, pageNumber, size);
         }
     }
 

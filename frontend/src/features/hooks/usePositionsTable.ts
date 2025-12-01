@@ -24,7 +24,7 @@ const excelHeadersMap: Record<keyof Position, string> = {
 
 export const usePositionsTable = () => {
     const {toast} = useToast();
-    const {positions, getPositions} = useNewPositionForm(false);
+    const {positions ,getPositions, currentPage, pageSize, setPageSize, handleNext, handlePrev, totalPages, search, setSearch} = useNewPositionForm(false);
     const [isPositionDeleteSelected, setIsPositionDeleteSelected] = useState<number | boolean>(false);
 
     const handleDelete = async () => {
@@ -98,5 +98,13 @@ export const usePositionsTable = () => {
         handleDelete,
         positions,
         exportToExcel,
+        pageSize,
+        setPageSize,
+        handleNext,
+        handlePrev,
+        currentPage,
+        totalPages,
+        search,
+        setSearch
     }
 }

@@ -5,6 +5,8 @@ import {Trash} from "lucide-react";
 import {Modal} from "@/common/Modal.tsx";
 import {usePositionsTable} from "@/features/hooks/usePositionsTable.ts";
 import type {User} from "@/features/types.ts";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
+import {Input} from '@/components/ui/input';
 
 interface Props {
     user: User | null;
@@ -16,10 +18,58 @@ export const PositionsTable: FC<Props> = ({user}) => {
         isPositionDeleteSelected,
         setIsPositionDeleteSelected,
         handleDelete,
-        exportToExcel
+        exportToExcel,
+        pageSize,
+        setPageSize,
+        handleNext,
+        handlePrev,
+        currentPage,
+        totalPages,
+        search,
+        setSearch
     } = usePositionsTable();
     return (
-        <>
+        <div>
+            <div className="w-[450px] px-2">
+                <div className="flex items-center justify-between mb-4">
+                    <div>
+                        <Button variant="outline" size="sm" onClick={handlePrev} disabled={currentPage === 1}>
+                            Пред
+                        </Button>
+                        <span className="mx-2">
+            {currentPage} / {pageSize === 0 ? 1 : totalPages}
+          </span>
+                        <Button variant="outline" size="sm" onClick={handleNext}
+                                disabled={(currentPage === totalPages) || (pageSize === 0)}>
+                            След
+                        </Button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span>Размер старницы:</span>
+                        <Select value={pageSize.toString()} onValueChange={(val) => setPageSize(Number(val))}>
+                            <SelectTrigger className="w-20">
+                                <SelectValue placeholder="10"/>
+                            </SelectTrigger>
+                            <SelectContent>
+                                {[5, 10, 20, 50, 0].map((size) => (
+                                    <SelectItem key={size} value={size.toString()}>
+                                        {size === 0 ? 'Все' : size}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+                <div>
+                    <Input
+                        placeholder="Поиск по названию..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="mb-4"
+                    />
+                </div>
+            </div>
+
             <Table>
                 <TableHeader>
                     <TableRow>
@@ -66,6 +116,6 @@ export const PositionsTable: FC<Props> = ({user}) => {
             >
                 <p>Эта локация с ID {isPositionDeleteSelected} будет удалена</p>
             </Modal>
-        </>
+        </div>
     )
 }

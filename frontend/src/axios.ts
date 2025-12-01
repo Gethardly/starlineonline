@@ -2,9 +2,11 @@ import axios, {type InternalAxiosRequestConfig} from "axios";
 
 //https://starlineextenstion-nestjsbackend-sdkwyu-50f64a-95-111-243-134.traefik.me/
 
-const baseURL = import.meta.env.MODE === 'production'
-    ? "https://vosst.qit.kg/"
-    : "http://localhost:3000";
+const baseURL = "https://vosst.qit.kg/";
+
+/*import.meta.env.MODE === 'production'
+? "https://vosst.qit.kg/"
+: "http://localhost:3000";*/
 
 const axiosApi = axios.create({
     baseURL: baseURL,

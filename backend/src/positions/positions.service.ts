@@ -10,20 +10,20 @@ export class PositionsService {
     }
 
     create(user: User, createPositionDto: CreatePositionDto) {
-        const data: any = { ...createPositionDto };
+        const data: any = {...createPositionDto};
 
         if (user.role !== Role.admin) {
-            data.users = { connect: { id: user.userId } };
+            data.users = {connect: {id: user.userId}};
         }
 
         return this.prisma.position.create({
             data,
-            include: { users: true },
+            include: {users: true},
         });
     }
 
 
-    findAll(user: User) {
+    async findAll(user: User, page = 1, pageSize?: number) {
         const where = user.role === Role.admin
             ? undefined // для админа нет выборки, иначе только опр пользователя позиции
             : {
@@ -32,26 +32,38 @@ export class PositionsService {
                 },
             };
 
-        return this.prisma.position.findMany({
-            where,
-            include: {users: true},
-        });
+        const [positions, total] = await Promise.all([
+            this.prisma.position.findMany({
+                where,
+                include: {users: true},
+                skip: pageSize ? (page - 1) * pageSize : undefined,
+                take: pageSize ? pageSize : undefined,
+            }),
+            this.prisma.position.count({where}),
+        ]);
+
+        return {
+            positions,
+            total,
+            page,
+            pageSize,
+        };
     }
 
     findOne(id: number, user: User) {
         if (user.role === Role.admin) {
             return this.prisma.position.findUnique({
-                where: { id },
-                include: { users: true },
+                where: {id},
+                include: {users: true},
             });
         }
 
         return this.prisma.position.findFirst({
             where: {
                 id,
-                users: { some: { id: user.userId } },
+                users: {some: {id: user.userId}},
             },
-            include: { users: true },
+            include: {users: true},
         });
     }
 

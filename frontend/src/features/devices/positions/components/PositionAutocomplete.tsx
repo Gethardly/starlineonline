@@ -29,7 +29,7 @@ export const PositionAutocomplete: FC<Props> = ({positions, value, onChange}) =>
                 {selected ? selected.name : "Выберите позицию..."}
             </PopoverTrigger>
 
-            <PopoverContent className="p-0 w-[600px]">
+            <PopoverContent className="p-0 w-[400px]">
                 <Command>
                     <CommandInput placeholder="Поиск..."/>
 
