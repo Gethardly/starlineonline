@@ -53,6 +53,13 @@ export const useNewPositionForm = (isForm: boolean) => {
 
     const loading = loadingDevices || loadingAddress || form.formState.isSubmitting || positionsLoading;
 
+    const postMessage = (positions: Position[]) => {
+        window.parent.postMessage({
+            action: "SET_POINTS",
+            positions: positions,
+        }, "https://starline-online.ru");
+    };
+
     const getPositions = useCallback(async () => {
         try {
             setPositionsLoading(true);
@@ -68,10 +75,7 @@ export const useNewPositionForm = (isForm: boolean) => {
             setSelectedPosition(data.positions[0]);
             setCurrentPage(data.page);
 
-            window.parent.postMessage({
-                action: "SET_POINTS",
-                positions: data.positions,
-            }, "https://starline-online.ru");
+            postMessage(data.positions);
         } catch (e) {
             console.error(e);
         } finally {
@@ -138,6 +142,7 @@ export const useNewPositionForm = (isForm: boolean) => {
     useEffect(() => {
         if (!search.trim()) {
             setFilteredPositions(positions);
+            postMessage(positions);
             return;
         }
         const s = search.toLowerCase();
@@ -146,8 +151,9 @@ export const useNewPositionForm = (isForm: boolean) => {
             pos.name.toLowerCase().includes(s)
         );
 
+        postMessage(result);
         setFilteredPositions(result);
-    }, [search, positions])
+    }, [search, positions]);
 
     useEffect(() => {
         if (!editEnabled) {
