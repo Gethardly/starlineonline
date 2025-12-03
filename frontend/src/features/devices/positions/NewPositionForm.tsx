@@ -109,8 +109,8 @@ export const NewPositionForm: FC = () => {
                                         <SelectContent>
                                             {devices.map((d) => (
                                                 <SelectItem
-                                                    key={d.device_id}
-                                                    value={d.device_id.toString()}
+                                                    key={d.deviceId}
+                                                    value={d.deviceId.toString()}
                                                 >
                                                     {d.alias}{" "}
                                                     {d.status === 1 ? "(В сети)" : "(Оффлайн)"}

@@ -36,10 +36,10 @@ export const NewDeviceForm = () => {
                                     <SelectContent>
                                         {devices.map((d) => (
                                             <SelectItem
-                                                key={d.device_id}
-                                                value={d.device_id.toString()}
+                                                key={d.deviceId}
+                                                value={d.deviceId.toString()}
                                             >
-                                                {d.alias} {d.device_id}{" "}
+                                                {d.alias} {d.deviceId}{" "}
                                                 {d.status === 1 ? "(В сети)" : "(Оффлайн)"}
                                             </SelectItem>
                                         ))}

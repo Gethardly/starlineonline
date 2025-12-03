@@ -17,16 +17,22 @@ export interface Pos {
     dir?: number;
     s?: number;
     sat_qty?: number;
+    direction?: string;
     ts: number;
-    x: number;
-    y: number;
+    x: string;
+    y: string;
+    speed: number;
 }
 
 export interface Device {
+    id?: number;
     alias: string;
-    device_id: number;
+    deviceId: string;
     pos: Pos;
     status: number;
+    createdAt?: string;
+    updatedAt?: string;
+    imei?: string;
 }
 
 export interface Position {
@@ -68,8 +74,8 @@ export const positionFormSchema = z.object({
         }),
     description: z.string().min(5, "Введите описание"),
     note: z.string().optional(),
-    x: z.number(),
-    y: z.number(),
+    x: z.string(),
+    y: z.string(),
     positionNumber: z.number({error: "Введите номер позиции"})
         .min(1, {message: "Минимальное значение — 1"}),
 });

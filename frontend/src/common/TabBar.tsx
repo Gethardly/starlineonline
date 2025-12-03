@@ -8,6 +8,7 @@ import {type FC, useState} from "react";
 import {LogOutIcon} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
 import {Modal} from "@/common/Modal.tsx";
+import {DevicesTable} from "@/features/devices/DevicesTable.tsx";
 
 interface Props {
     user: User | null;
@@ -36,21 +37,24 @@ export const TabBar: FC<Props> = ({user, logout}) => {
                         Список локаций
                     </TabsTrigger>
                     {user?.role === 'admin' && (
-                        <TabsTrigger
-                            value="users-list"
-                            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground
+                        <>
+                            <TabsTrigger
+                                value="users-list"
+                                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground
                  transition-all text-sm font-medium"
-                        >
-                            Список пользователей
-                        </TabsTrigger>
-                    )}
-                    {/*<TabsTrigger
-                    value="form2"
-                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground
+                            >
+                                Список пользователей
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="devices-list"
+                                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground
                  rounded-lg transition-all text-sm font-medium"
-                >
-                    Добавление устройства
-                </TabsTrigger>
+                            >
+                                Список устройств
+                            </TabsTrigger>
+                        </>
+                    )}
+                    {/*
 
                 <TabsTrigger
                     value="form3"
@@ -69,14 +73,17 @@ export const TabBar: FC<Props> = ({user, logout}) => {
                 </TabsContent>
                 {
                     user?.role === 'admin' && (
-                        <TabsContent value="users-list">
-                            <UsersTable user={user}/>
-                        </TabsContent>
+                        <>
+                            <TabsContent value="users-list">
+                                <UsersTable user={user}/>
+                            </TabsContent>
+                            <TabsContent value="devices-list">
+                                <DevicesTable/>
+                            </TabsContent>
+                        </>
                     )
                 }
-                {/*<TabsContent value="form2">
-                <NewDeviceForm/>
-            </TabsContent>
+                {/*
             <TabsContent value="form3">
                 <h3>form 3</h3>
             </TabsContent>*/}
