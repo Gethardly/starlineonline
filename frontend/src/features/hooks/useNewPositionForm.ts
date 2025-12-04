@@ -45,28 +45,32 @@ export const useNewPositionForm = (isForm: boolean) => {
             contacts: editEnabled ? selectedPosition?.contacts ?? "" : "",
             description: editEnabled ? selectedPosition?.description ?? "" : "",
             note: editEnabled ? selectedPosition?.note ?? "" : "",
-            x: editEnabled ? selectedPosition?.x ?? 0 : selectedDevice?.pos.x ?? 0,
-            y: editEnabled ? selectedPosition?.y ?? 0 : selectedDevice?.pos.y ?? 0,
+            x: editEnabled ? selectedPosition?.x.toString() ?? "" : selectedDevice?.pos.x ?? "",
+            y: editEnabled ? selectedPosition?.y.toString() ?? "" : selectedDevice?.pos.y ?? "",
             positionNumber: selectedPosition?.positionNumber ?? 0
         }
     });
 
     const loading = loadingDevices || loadingAddress || form.formState.isSubmitting || positionsLoading;
 
-    const postMessage = (positions: Position[]) => {
-        window.parent.postMessage({
-            action: "SET_POINTS",
-            positions: positions,
-        }, "https://starline-online.ru");
-    };
+    const postMessage = useCallback((positions: Position[]) => {
+        if (!editEnabled) {
+            window.parent.postMessage({
+                action: "SET_POINTS",
+                positions: positions,
+            }, "https://starline-online.ru");
+        }
+    }, [editEnabled]);
 
     const getPositions = useCallback(async () => {
         try {
             setPositionsLoading(true);
             const {data} = await axiosApi.get('/positions', {
                 params: {
-                    page: pageSize === 0 ? 1 : currentPage,
-                    ...(pageSize !== 0 && {pageSize})
+                    ...(editEnabled ? {} : {
+                        page: pageSize === 0 ? 1 : currentPage,
+                        ...(pageSize !== 0 && {pageSize}),
+                    })
                 }
             });
 
@@ -81,7 +85,7 @@ export const useNewPositionForm = (isForm: boolean) => {
         } finally {
             setPositionsLoading(false);
         }
-    }, [currentPage, pageSize]);
+    }, [currentPage, pageSize, editEnabled]);
 
     const getAddress = useCallback(async () => {
         try {
@@ -156,41 +160,37 @@ export const useNewPositionForm = (isForm: boolean) => {
     }, [search, positions]);
 
     useEffect(() => {
-        if (!editEnabled) {
-            (async () => {
-                setLoadingDevices(true);
-                try {
-                    if (isForm) {
-                        const {data} = await axiosApi.get("/devices");
+        (async () => {
+            setLoadingDevices(true);
+            try {
+                if (isForm && !editEnabled) {
+                    const {data} = await axiosApi.get("/devices");
+                    setDevices(data);
 
-                        await getPositions();
-                        setDevices(data);
+                    if (data.length > 0) {
+                        const firstDevice = data[0];
+                        const {data: devicePosition} = await axiosApi.get(`starline/device/${firstDevice.deviceId}/position`);
 
-                        if (data.length > 0) {
-                            const firstDevice = data[0];
-                            const {data: devicePosition} = await axiosApi.get(`starline/device/${firstDevice.deviceId}/position`);
-
-                            const selectedDevice = {
-                                ...firstDevice,
-                                pos: {...devicePosition},
-                            }
-                            setSelectedDevice(selectedDevice);
-
-                            form.setValue("device_id", selectedDevice.deviceId.toString())
-                            form.setValue("x", selectedDevice.pos.x);
-                            form.setValue("y", selectedDevice.pos.y);
+                        const selectedDevice = {
+                            ...firstDevice,
+                            pos: {...devicePosition},
                         }
-                    } else {
-                        await getPositions();
-                    }
+                        setSelectedDevice(selectedDevice);
 
-                } catch (e) {
-                    console.error("Failed to load devices:", e);
-                } finally {
-                    setLoadingDevices(false);
+                        form.setValue("device_id", selectedDevice.deviceId.toString())
+                        form.setValue("x", selectedDevice.pos.x);
+                        form.setValue("y", selectedDevice.pos.y);
+                    }
                 }
-            })();
-        }
+
+                await getPositions();
+
+            } catch (e) {
+                console.error("Failed to load devices:", e);
+            } finally {
+                setLoadingDevices(false);
+            }
+        })();
     }, [editEnabled, getPositions]);
 
     useEffect(() => {

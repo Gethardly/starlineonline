@@ -19,8 +19,6 @@ interface Props {
 export const PositionAutocomplete: FC<Props> = ({positions, value, onChange}) => {
     const [open, setOpen] = useState(false)
 
-    console.log(value);
-
     const selected = positions.find((p) => p.id.toString() === value)
 
     return (

@@ -8,7 +8,7 @@ function waitForYmaps(callback) {
 
 waitForYmaps(() => {
     window.ymaps.ready(() => {
-        console.log('Модуль скрытия изображений запущен');
+        /*console.log('Модуль скрытия изображений запущен');
 
         const style = document.createElement('style');
         style.id = 'hide-ymaps-images-style';
@@ -46,7 +46,7 @@ waitForYmaps(() => {
         }
 
         // Первоначальное скрытие пшек
-        hideYmapsImages();
+        //hideYmapsImages();
 
         if (window.map) {
             window.map.geoObjects.events.add('add', () => {
@@ -66,6 +66,7 @@ waitForYmaps(() => {
         }
 
         console.log('✓ Модуль скрытия изображений инициализирован');
+        */
 
         // Храним данные о наших метках
         window.myPlacemarksData = window.myPlacemarksData || [];

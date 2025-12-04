@@ -17,7 +17,7 @@ export const useNewDeviceForm = () => {
     const [loading, setLoading] = useState(false);
 
     const onSelectChange = (val: string) => {
-        const device = devices.find((d) => d.deviceId === parseInt(val));
+        const device = devices.find((d) => d.deviceId === val);
         if (device) {
             setSelectedDevice(device);
             form.setValue("device_id", val);

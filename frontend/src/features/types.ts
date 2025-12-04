@@ -37,8 +37,8 @@ export interface Device {
 
 export interface Position {
     id: number,
-    x: number,
-    y: number,
+    x: string,
+    y: string,
     name: string,
     address: string,
     contacts: string,

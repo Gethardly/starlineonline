@@ -231,7 +231,12 @@ export const NewPositionForm: FC = () => {
                         />
 
                         <div>
-                            <Button type="submit" className="w-full" disabled={loading}>
+                            <Button type="submit" className="w-full" disabled={loading} onClick={() => {
+                                console.log('Button clicked');
+                                console.log('Form valid:', form.formState.isValid);
+                                console.log('Form errors:', form.formState.errors);
+                                console.log('Form values:', form.getValues());
+                            }}>
                                 {loading ? "Отправка..." : "Отправить"}
                             </Button>
                         </div>

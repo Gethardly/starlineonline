@@ -21,6 +21,16 @@ export const DevicesTable = () => {
         }
     }
 
+    const syncDevices = async () => {
+        try {
+            setLoading(true);
+            const {data} = await axiosApi.get("/starline/devices");
+            setDevices(data.devices);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
     useEffect(() => {
         (async () => {
             await getDevices();
@@ -30,7 +40,7 @@ export const DevicesTable = () => {
         <div>
             {loading && <Loader/>}
             <div className="my-3 px-4 flex justify-end">
-                <Button variant="outline" onClick={getDevices}>Синхронизировать список устройств</Button>
+                <Button variant="outline" onClick={syncDevices}>Синхронизировать список устройств</Button>
             </div>
             <Table>
                 <TableHeader>
